@@ -33,7 +33,6 @@ export function ProjectCanvas({ id }: ProjectCanvasProps) {
   useEffect(() => {
     const el = wrapperRef.current
     if (!el) return
-    if (window.matchMedia("(max-width: 767px)").matches) return
     const obs = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
@@ -58,7 +57,7 @@ export function ProjectCanvas({ id }: ProjectCanvasProps) {
       className="relative aspect-square w-full border border-[var(--rule)] bg-gradient-to-br from-black/40 via-[#1a0a08]/40 to-black/60"
     >
       {mounted && (
-        <Canvas camera={{ position: [0, 0, 4.5], fov: 45 }} dpr={[1, 2]}>
+        <Canvas camera={{ position: [0, 0, 4.5], fov: 45 }} dpr={[1, 1.5]}>
           <ambientLight intensity={0.5} />
           <directionalLight position={[4, 5, 6]} intensity={1} />
           <pointLight position={[-3, -2, -4]} intensity={0.6} color="#ff5436" />

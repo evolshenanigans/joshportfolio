@@ -197,7 +197,7 @@ export default function Home() {
         {/* giant background numeral */}
         <p
           aria-hidden
-          className="pointer-events-none absolute -right-8 md:-right-16 bottom-0 font-display leading-none text-[28rem] md:text-[44rem] text-[var(--accent)]/[0.05] select-none"
+          className="pointer-events-none absolute -right-4 md:-right-16 bottom-0 font-display leading-none text-[14rem] md:text-[44rem] text-[var(--accent)]/[0.05] select-none"
         >
           06
         </p>
@@ -206,9 +206,9 @@ export default function Home() {
           aria-hidden
           className="absolute top-[22%] left-0 w-[38%] h-px bg-[var(--accent)]/40"
         />
-        <div className="relative max-w-[1400px] mx-auto w-full grid md:grid-cols-[auto_1fr] gap-12 items-start">
-          <div className="shrink-0">
-            <div className="w-48 h-48 md:w-64 md:h-64 overflow-hidden border border-[var(--rule)] grayscale hover:grayscale-0 transition-all">
+        <div className="relative max-w-[1400px] mx-auto w-full grid md:grid-cols-[auto_1fr] gap-10 md:gap-12 items-start">
+          <div className="shrink-0 mx-auto md:mx-0">
+            <div className="w-40 h-40 md:w-64 md:h-64 overflow-hidden border border-[var(--rule)] grayscale hover:grayscale-0 transition-all">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={contact.photo}
@@ -221,7 +221,7 @@ export default function Home() {
           <p className="text-xs uppercase tracking-[0.3em] mb-4 text-[var(--text-muted)]">
             06 — Say hello
           </p>
-          <h2 className="font-display text-5xl md:text-7xl mb-10">Let&apos;s build something.</h2>
+          <h2 className="font-display text-4xl md:text-7xl mb-10 leading-[1.05]">Let&apos;s build something.</h2>
           <div className="grid md:grid-cols-2 gap-4">
             <a href={`mailto:${contact.email}`} className="border border-[var(--rule)] p-6 hover:border-[var(--accent)] transition-colors">
               <p className="text-xs uppercase tracking-wider text-[var(--text-muted)]">Email</p>
