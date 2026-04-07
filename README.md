@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# joshportfolio
 
-## Getting Started
+Personal portfolio for **Joshua Gutierrez** — data scientist / ML engineer.
+Live at [b3soft.vercel.app](https://b3soft.vercel.app).
 
-First, run the development server:
+> _"Data scientist by training. Translator by trade. From English major to ML engineer — I build models that explain themselves, because someone has to."_
+
+---
+
+## Stack
+
+- **Next.js 16** (App Router, Turbopack) + **TypeScript**
+- **Tailwind v4** with CSS-variable design tokens
+- **React Three Fiber** + **drei** + **@react-three/postprocessing** — 3D scenes
+- **GSAP** + **ScrollTrigger** — scroll-driven animation and the horizontal "Arc" pin
+- **Lenis** — wheel-normalized smooth scroll, synced to GSAP's ticker
+- **Fraunces** + **Inter** via `next/font/google`
+
+## Sections
+
+| # | ID | What it is |
+|---|----|------------|
+| 00 | `#open` | Cold open — morphing 3D scene (chalk → keyboard → neural net) |
+| 01 | `#manifesto` | Split-word headline reveal |
+| 02 | `#arc` | Horizontal pinned timeline: Teacher → Engineer → Scientist |
+| 03 | `#work` | Selected projects with drag-to-orbit 3D scene per project |
+| 04 | `#toolbox` | Editorial skills list, grouped by category |
+| 05 | `#numbers` | Animated stat counters |
+| 06 | `#contact` | Email · GitHub · LinkedIn · Resume |
+
+All content lives in [`lib/data.ts`](./lib/data.ts) as the single source of truth.
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # production build (must pass with zero errors)
+npm run lint    # eslint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app/
+  layout.tsx          # root + LenisProvider + fonts + metadata
+  page.tsx            # all 7 sections in sequence
+  globals.css         # design tokens (--bg, --accent, --text, ...)
+  opengraph-image.tsx # edge-runtime OG image
+components/
+  ArcRail.tsx         # pinned horizontal timeline
+  HeadlineReveal.tsx  # GSAP word-split reveal
+  ScrollReveal.tsx    # fade-up on scroll
+  SectionNav.tsx      # floating side-dot nav
+  StatCounter.tsx     # count-up on view
+  three/
+    ColdOpen.tsx      # morphing hero scene
+    ProjectCanvas.tsx # per-project 3D preview (lazy-mounted)
+    projectScenes.tsx # scene definitions
+lib/
+  data.ts             # projects, timeline, stats, skills, contact
+  lenis.tsx           # Lenis + GSAP ticker integration
+  utils.ts
+public/
+  2026resume.pdf
+  cafepicremoved.png
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Design tokens
 
-## Learn More
+All colors and type tokens are CSS variables defined in `app/globals.css` and
+exposed to Tailwind via `@theme inline`. New components should use the tokens,
+never hardcoded hex values.
 
-To learn more about Next.js, take a look at the following resources:
+| Token | Purpose |
+|-------|---------|
+| `--bg` / `--surface` | Page + card backgrounds |
+| `--accent` / `--accent-dim` | Cyan highlights, rules, glow |
+| `--text` / `--text-muted` | Primary + secondary text |
+| `--rule` | Subtle borders |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Performance notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Lenis smooth scroll** runs in lerp mode (`lerp: 0.15`) and is driven off
+  `gsap.ticker.add(...)` so ScrollTrigger `scrub` and `pin` stay perfectly
+  synced. Wheel deltas are normalized for cross-browser consistency.
+- **R3F canvases** are lazy-mounted via `IntersectionObserver` — each scene
+  only boots when it scrolls near the viewport.
+- **Reduced motion**: every GSAP and auto-play effect honors
+  `prefers-reduced-motion: reduce` with an instant-state fallback.
+- **Mobile**: `dpr` capped at `1.5`, postprocessing kept minimal.
 
-## Deploy on Vercel
+## Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Pushes to `main` auto-deploy via Vercel. For first-time setup:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Option A: Vercel dashboard
+# https://vercel.com/new → import this repo → project name: b3soft
+
+# Option B: Vercel CLI
+npm i -g vercel
+vercel login
+vercel --prod
+```
+
+After deploying, update `metadataBase` in `app/layout.tsx` if the production
+URL changes.
+
+## License
+
+Personal portfolio. Content (copy, photo, resume) © Joshua Gutierrez.
+Code is MIT — fork freely if any of it is useful to you.
