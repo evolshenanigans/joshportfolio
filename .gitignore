@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local tooling / planning scratch
+.claude/
+settings.json
+stop_hook.sh
+PROMPT.md
+PROMPT-v2.md
+plan.md
+plan-v2.md
+prd.md
+prd-v2.md
+activity.md
+activity-v2.md
+SETUP.md
+nano-gen-*.jpeg
