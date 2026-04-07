@@ -17,7 +17,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://joshgutierrez.vercel.app"),
+  metadataBase: new URL("https://b3soft.vercel.app"),
   title: "Joshua Gutierrez — Data Scientist",
   description:
     "Data scientist by training. Translator by trade. From English major to ML engineer — I build models that explain themselves, because someone has to.",
