@@ -3,18 +3,20 @@ import fs from "node:fs"
 import path from "node:path"
 import matter from "gray-matter"
 import { postFrontmatterSchema, type Post } from "@/lib/posts/schema"
+
 const DIR = path.join(process.cwd(), "content", "feed")
-export function loadPosts(): Post[] {
-  const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".mdx"))
+
+export function loadPosts(dir: string = DIR): Post[] {
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".mdx"))
   const posts = files.map((file) => {
-    const raw = fs.readFileSync(path.join(DIR, file), "utf8")
+    const raw = fs.readFileSync(path.join(dir, file), "utf8")
     const { data, content } = matter(raw)
     // gray-matter auto-parses bare YAML dates to Date objects; coerce back to ISO string
-    if (data.date instanceof Date) {
-      data.date = data.date.toISOString().slice(0, 10)
+    const normalized = { ...data, date: data.date instanceof Date ? data.date.toISOString().slice(0, 10) : data.date }
+    const parsed = postFrontmatterSchema.safeParse(normalized)
+    if (!parsed.success) {
+      throw new Error(`Invalid frontmatter in ${path.join(dir, file)}: ${parsed.error.message}`)
     }
-    const parsed = postFrontmatterSchema.safeParse(data)
-    if (!parsed.success) { throw new Error(`Invalid frontmatter in content/feed/${file}: ${parsed.error.message}`) }
     const id = file.replace(/\.mdx$/, "")
     return { ...parsed.data, id, body: content.trim() } as Post
   })
