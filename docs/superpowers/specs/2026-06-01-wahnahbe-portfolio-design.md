@@ -175,15 +175,15 @@ Art direction follows the world canon's **"not neon and rain"** principle, diale
 - **Chosen:** layered parallax. 2–3 photoreal depth plates composited in code, with parallax driven by pointer + scroll, plus code-drawn FX (scanlines, camera-grid, drifting embers, the visibility rail, and the live HUD/wordmark).
 - **Parked fallback:** a 3D (React Three Fiber) depth version. The hero is architected behind a `<CityHero>` boundary so the renderer can be swapped to 3D later **without** regenerating art or touching the page.
 
-### 9.3 Image assets (author-generated in Nano Banana Pro)
+### 9.3 Image assets (author-generated in Nano Banana Pro) — DELIVERED ✓ 2026-06-01
 
-Three full ultra-wide photoreal plates (prompts in Appendix A), delivered to `public/hero/`:
-- **Plate 1 — establishing** (full vertical city; calm center channel for the wordmark) → mid parallax plane / base.
-- **Plate 2 — foreground/The Rust** (near plane, bottom-weighted, dark upper region) → front plane (code-masked/feathered).
-- **Plate 3 — far/sky** (back plane, visibility-gradient sky, max negative space) → back plane.
+Three full ultra-wide photoreal plates (prompts in Appendix A), in `public/`:
+- **`public/megacity.png`** — Plate 1, establishing. Full vertical city; has a calm misty vertical channel up the center for the wordmark, cyan signage high → warm amber street low. → **mid / base plane**.
+- **`public/undergroundtransit.png`** — Plate 2, foreground / The Rust. Bottom-weighted (welding torch, salvaged signage, pipes) with a dark upper sky. → **front plane** (code-masked/feathered along the bottom).
+- **`public/skyline.png`** — Plate 3, far towers + visibility-gradient sky + hazy moon, heavy negative space. → **back plane** (parallaxes slowly behind the center channel).
 - Optional later: an L0 haze pass and a focal prop (moon / hanging sign / torii).
 
-Plates are full frames (no transparency required from the author); compositing, masking, and parallax are handled in code. Source ultra-wide; site serves optimized WebP/AVIF.
+Plates are full frames (no transparency needed); compositing, masking, and parallax are handled in code. Delivered as PNG; the build converts to optimized WebP/AVIF (via `next/image` or a build step).
 
 ### 9.4 Performance & accessibility (hero)
 
@@ -230,7 +230,7 @@ lib/
   schema.ts            # Zod schemas per post type
   tokens — in app/globals.css
 public/
-  hero/{plate-1,plate-2,plate-3}.webp
+  megacity.png  undergroundtransit.png  skyline.png   # hero plates (build → webp/avif)
 ```
 
 Design tokens move into `app/globals.css`; all components consume tokens, never hardcoded hex.
