@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest"
+import { it, expect } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { VideoCard } from "@/components/feed/cards/VideoCard"
 import { LogCard } from "@/components/feed/cards/LogCard"
@@ -20,7 +20,7 @@ it("LogCard renders its body", () => {
 
 it("PostRow shows the type tag + relative time", () => {
   const p = { id: "x", type: "build", date: "2026-06-01", title: "T", summary: "S", status: "building", links: {}, body: "" } as unknown as Post
-  const { container } = render(
+  render(
     <ul>
       <PostRow post={p}><span>child</span></PostRow>
     </ul>
