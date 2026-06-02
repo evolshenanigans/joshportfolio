@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "About — Wahnahbe" }
 export default function About() {
   return (
     <main className="mx-auto max-w-3xl px-5 pt-28 pb-24">
-      <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">the human behind wahnahbe</p>
+      <h1 className="font-mono text-xs uppercase tracking-[0.2em] text-accent">the human behind wahnahbe</h1>
       <p className="mt-4 text-lg leading-relaxed text-text">{about.bio}</p>
       <CornerFrame className="mt-10 p-6">
         <ul className="space-y-4">
