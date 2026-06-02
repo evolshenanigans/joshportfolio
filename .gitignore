@@ -42,6 +42,7 @@ next-env.d.ts
 
 # local tooling / planning scratch
 .claude/
+.superpowers/
 settings.json
 stop_hook.sh
 PROMPT.md
