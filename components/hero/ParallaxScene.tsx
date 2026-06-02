@@ -3,45 +3,38 @@ import { useEffect, useRef } from "react"
 import Image from "next/image"
 import { CameraGrid, VisibilityRail } from "@/components/hero/heroFx"
 
-const PLATES = [
-  { src: "/skyline.png", depth: 12, z: "z-0", className: "object-cover object-center" },
-  { src: "/megacity.png", depth: 26, z: "z-[5]", className: "object-cover object-bottom" },
-  { src: "/undergroundtransit.png", depth: 48, z: "z-[15]", className: "object-cover object-bottom translate-y-[18%]" },
-] as const
-
+// One clean plate (the full vertical Neo-Tokyo) with a slow Ken-Burns zoom (CSS)
+// plus a gentle mouse-tilt + scroll drift (JS). The plates are full scenes, not
+// transparent cut-outs, so we lead with the strongest single image rather than
+// stacking three. CityHero keeps this behind a swap boundary for a future 3D version.
 export function ParallaxScene() {
-  const root = useRef<HTMLDivElement>(null)
+  const wrap = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const el = root.current
+    const el = wrap.current
     if (!el) return
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
 
-    const layers = Array.from(el.querySelectorAll<HTMLElement>("[data-depth]"))
     let raf = 0
-    let px = 0, py = 0
-
+    let px = 0
+    let py = 0
     const apply = () => {
       raf = 0
       const sy = window.scrollY
-      for (const layer of layers) {
-        const d = Number(layer.dataset.depth)
-        layer.style.transform = `translate3d(${px * d * -0.6}px, ${py * d * -0.4 - sy * (d / 800)}px, 0) scale(1.08)`
-      }
+      el.style.transform = `translate3d(${px * 14}px, ${py * 10 + sy * 0.12}px, 0)`
     }
 
-    // Mobile / coarse pointers: scroll-only drift, no pointer parallax.
+    // Mobile / coarse pointers: scroll drift only, no pointer tilt.
     if (window.matchMedia("(pointer: coarse), (max-width: 768px)").matches) {
-      const onScrollOnly = () => { if (!raf) raf = requestAnimationFrame(apply) }
-      window.addEventListener("scroll", onScrollOnly, { passive: true })
+      const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply) }
+      window.addEventListener("scroll", onScroll, { passive: true })
       apply()
-      return () => { window.removeEventListener("scroll", onScrollOnly); if (raf) cancelAnimationFrame(raf) }
+      return () => { window.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf) }
     }
 
     const onMove = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect()
-      px = (e.clientX - r.left) / r.width - 0.5
-      py = (e.clientY - r.top) / r.height - 0.5
+      px = e.clientX / window.innerWidth - 0.5
+      py = e.clientY / window.innerHeight - 0.5
       if (!raf) raf = requestAnimationFrame(apply)
     }
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply) }
@@ -56,16 +49,21 @@ export function ParallaxScene() {
   }, [])
 
   return (
-    <div ref={root} className="absolute inset-0 overflow-hidden bg-bg">
-      {PLATES.map((p) => (
-        <div key={p.src} data-depth={p.depth} className={`absolute inset-0 ${p.z} will-change-transform`}>
-          <Image src={p.src} alt="" fill priority={p.src === "/megacity.png"} className={p.className} sizes="100vw" />
-        </div>
-      ))}
+    <div className="absolute inset-0 overflow-hidden bg-bg">
+      <div ref={wrap} className="hero-zoom absolute inset-[-9%] will-change-transform">
+        <Image src="/megacity.png" alt="" fill priority sizes="100vw" className="object-cover object-[50%_42%]" />
+      </div>
+      {/* legibility: soft center light → dark vignette so the HUD reads over the city */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "radial-gradient(115% 85% at 50% 44%, rgba(5,8,10,0.10), rgba(5,8,10,0.52) 52%, rgba(5,8,10,0.92))" }}
+      />
       <CameraGrid />
       <VisibilityRail />
-      <div className="pointer-events-none absolute inset-0 z-[18]"
-        style={{ background: "linear-gradient(180deg, transparent 60%, var(--bg))" }} />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-40"
+        style={{ background: "linear-gradient(180deg, transparent, var(--bg))" }}
+      />
     </div>
   )
 }
