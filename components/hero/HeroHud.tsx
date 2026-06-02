@@ -3,10 +3,16 @@ import { site } from "@/lib/site"
 export function HeroHud() {
   return (
     <div className="relative z-20 mx-auto flex h-full max-w-3xl flex-col items-center justify-center px-5 text-center">
+      {/* dark spotlight behind the content so the wordmark lifts off the neon */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[440px] w-[720px] max-w-[94vw] -translate-x-1/2 -translate-y-1/2"
+        style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(5,8,10,0.85), rgba(5,8,10,0.45) 50%, transparent 76%)", filter: "blur(12px)" }}
+      />
       <div className="font-mono">
         <span
-          className="text-4xl font-extrabold tracking-[0.04em] text-text md:text-5xl"
-          style={{ textShadow: "0 0 14px var(--accent), 0 0 36px var(--glow-cyan)" }}
+          className="text-5xl font-extrabold tracking-[0.04em] text-text md:text-6xl"
+          style={{ textShadow: "0 2px 14px rgba(0,0,0,0.95), 0 0 16px var(--accent), 0 0 44px var(--glow-cyan)" }}
         >
           WAHNAHBE
         </span>
@@ -18,8 +24,8 @@ export function HeroHud() {
         </span>
       </div>
       <p
-        className="mt-3 max-w-md text-sm text-text/80"
-        style={{ textShadow: "0 0 8px rgba(0,0,0,0.8)" }}
+        className="mt-3 max-w-md text-sm text-text/90"
+        style={{ textShadow: "0 1px 10px rgba(0,0,0,0.95)" }}
       >
         {site.tagline}
       </p>
