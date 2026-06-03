@@ -12,16 +12,3 @@ export function CameraGrid() {
     />
   )
 }
-
-export function VisibilityRail() {
-  return (
-    <div
-      className="pointer-events-none absolute right-4 top-16 bottom-16 z-20 w-1 rounded-full"
-      style={{
-        background: "linear-gradient(180deg, var(--accent), #dfeff5 48%, var(--accent-2))",
-        boxShadow: "0 0 12px var(--glow-cyan)",
-      }}
-      aria-hidden
-    />
-  )
-}

@@ -55,3 +55,9 @@ activity.md
 activity-v2.md
 SETUP.md
 nano-gen-*.jpeg
+
+# hero source media — kept local, not committed. The hero only needs the
+# extracted frames in public/frames/ at runtime; the source clips and the
+# old still plates would just bloat the repo.
+/public/*.mp4
+/public/*.png
