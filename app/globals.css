@@ -54,16 +54,6 @@ body {
   background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px);
 }
 
-@keyframes heroZoom {
-  from { scale: 1.05; }
-  to   { scale: 1.14; }
-}
-.hero-zoom {
-  scale: 1.05;
-  animation: heroZoom 30s ease-in-out infinite alternate;
-}
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero-zoom { animation: none; scale: 1.08; }
 }
