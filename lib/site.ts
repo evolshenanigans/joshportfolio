@@ -9,6 +9,9 @@ export const site = {
     github: "https://github.com/evolshenanigans",
     email: "joshgusgutierrez@gmail.com",
   },
+  // Socials that aren't live yet — rendered greyed out with a SOON tag instead
+  // of linking anywhere. Remove the entry here when the channel launches.
+  comingSoon: ["youtube"],
   resume: "/joshgutierrez2026resume.pdf",
 } as const
 

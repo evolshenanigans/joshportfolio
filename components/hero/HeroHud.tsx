@@ -1,4 +1,27 @@
+import type { ReactNode } from "react"
 import { site } from "@/lib/site"
+
+const comingSoon = new Set<string>(site.comingSoon)
+
+// A social entry: a real external link, or — while the channel isn't live —
+// a greyed-out label with a SOON tag instead of a dead link.
+function SocialItem({ id, href, children }: { id: string; href: string; children: ReactNode }) {
+  if (comingSoon.has(id)) {
+    return (
+      <span className="cursor-default select-none text-text-muted/50" title="coming soon">
+        {children}
+        <span className="ml-1.5 rounded border border-line/60 px-1 py-px align-middle text-[8px] tracking-[0.15em] text-accent-2/80">
+          SOON
+        </span>
+      </span>
+    )
+  }
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
+      {children}
+    </a>
+  )
+}
 
 export function HeroHud() {
   return (
@@ -35,16 +58,10 @@ export function HeroHud() {
       >
         ● BUILDING · {site.building}
       </div>
-      <div className="mt-4 flex gap-4 font-mono text-[11px] text-text-muted">
-        <a href={site.socials.youtube} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
-          ▶ youtube
-        </a>
-        <a href={site.socials.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
-          ◳ instagram
-        </a>
-        <a href={site.socials.github} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
-          ⌥ github
-        </a>
+      <div className="mt-4 flex items-center gap-4 font-mono text-[11px] text-text-muted">
+        <SocialItem id="youtube" href={site.socials.youtube}>▶ youtube</SocialItem>
+        <SocialItem id="instagram" href={site.socials.instagram}>◳ instagram</SocialItem>
+        <SocialItem id="github" href={site.socials.github}>⌥ github</SocialItem>
         <a href={`mailto:${site.socials.email}`} className="hover:text-accent">
           ✉ email
         </a>
