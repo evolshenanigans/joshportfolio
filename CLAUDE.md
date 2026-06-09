@@ -15,7 +15,7 @@ Run `npm run build` after every component change. Zero errors is the gate — a 
 
 ## Architecture
 
-**Wahnahbe** is a single-column typed-feed builder/creator hub for Joshua Gutierrez. Next.js 16 App Router, TypeScript, Tailwind v4, Lenis smooth scroll.
+**Wahnahbe** is a single-column typed-feed builder/creator hub for Joshua Gutierrez. Next.js 16 App Router, TypeScript, Tailwind v4, Lenis smooth scroll + GSAP ScrollTrigger (driven from one shared ticker in `lib/lenis.tsx`).
 
 ### Pages
 
@@ -27,14 +27,24 @@ Run `npm run build` after every component change. Zero errors is the gate — a 
 
 ### Hero — `components/hero/`
 
-`<CityHero>` is a layered-parallax Neo-Tokyo hero with two rendering paths:
+`<CityHero>` (`CityHero.tsx`) is a thin **swap boundary**: it renders `<CityDescent>` today and can be swapped for an R3F/Three.js renderer later without touching callers.
 
-- **`<ParallaxScene>`** (`components/hero/ParallaxScene.tsx`) — default, pointer + scroll parallax across 3 PNG plates in `public/` (`skyline.png`, `megacity.png`, `undergroundtransit.png`). Mobile/coarse-pointer: scroll-only drift. Respects `prefers-reduced-motion` by skipping setup.
-- **`<StaticScene>`** (inline in `CityHero.tsx`) — single still plate, CSS-gated with `motion-safe:hidden` / `motion-reduce:hidden`, no JS. Shown when `prefers-reduced-motion: reduce` is set.
+**`<CityDescent>`** (`CityDescent.tsx`) is a scroll-driven canvas descent through Neo-Tokyo:
 
-This boundary is an intentional **swap point**: `ParallaxScene` can be replaced with an R3F/Three.js renderer later without touching `CityHero`.
+- GSAP ScrollTrigger **pins** the hero (`PIN_LENGTH` 3200px runway, `scrub: 0.5`), synced to Lenis via the shared `gsap.ticker` in `lib/lenis.tsx`. Scroll progress maps to a frame index drawn onto a `<canvas>` (decorative, `aria-hidden`; DPR capped at 2; cover-fit math).
+- **Two committed frame sets** (counts/dimensions are constants in `CityDescent.tsx`): desktop `/frames/desktop/f-001..240.webp` (1600×900) and mobile `/frames/mobile/f-001..150.webp` (760×1351), chosen at a 768px breakpoint.
+- **Preload:** frame 1 is `<link rel="preload">`-hoisted from SSR (media-gated per breakpoint, `fetchPriority` high) so the canvas paints before hydration; the rest stream in two passes (every 8th frame, then the fill) and `nearestLoaded()` draws the closest decoded frame meanwhile.
+- **Reduced motion:** no pin, no scrub — frame 0 drawn statically.
+- **District cards** (`CARDS`) swap by scroll progress and are positioned over the clip's corner watermark (`wm` coords, normalized frame space) so it stays covered at any viewport. The HUD (`HeroHud.tsx` — h1 wordmark, building pill, socials) fades out over the first 15% of the descent.
+- **Overlays:** `HeroOverlays` (`heroLayers.tsx`) paints the legibility vignette, `CameraGrid` (`heroFx.tsx`), faint scanlines, and the bottom fade into `--bg`.
 
-HUD chrome lives in `components/hero/HeroHud.tsx` and `components/hero/heroFx.tsx` (camera grid overlay, visibility rail).
+**Regenerating frames:** the source clips are gitignored (`/public/*.mp4`, `/public/*.png` — they exist only on the local machine; back them up). Recipe (desktop; mobile is the same with the portrait clip and `scale=760:-2`):
+
+```bash
+ffmpeg -i public/<clip>.mp4 -vf "scale=1600:-2" -c:v libwebp -quality 72 -compression_level 6 -preset picture public/frames/desktop/f-%03d.webp
+```
+
+Then update `count`, `fw`/`fh`, and the `wm` watermark coords in `CityDescent.tsx` to match the new output. (The clip's generator watermark is never removed from footage — the district card parks over it.)
 
 ### Feed + Post taxonomy — `components/feed/`
 
@@ -61,10 +71,12 @@ The feed renders a reverse-chronological list of typed posts. Every post is one 
 
 - `lib/site.ts` — `site` object (name, socials, resume URL) and `about` object (bio + arc)
 - `lib/posts/schema.ts` — Zod schemas + `Post` type (source of truth for types)
-- `lib/posts/load.ts` — server-only MDX loader (`import "server-only"`)
+- `lib/posts/load.ts` — server-only MDX loader (`import "server-only"`); throws with the filename on invalid frontmatter
 - `lib/posts/filter.ts` — filter chips logic
 - `lib/posts/relativeTime.ts` — date → human label
-- `lib/lenis.tsx` — `LenisProvider` client component; wraps app in `app/layout.tsx`
+- `lib/projects/schema.ts` — Zod `projectSchema` + `ProjectMeta`/`Project` types
+- `lib/projects/load.ts` — server-only case-study loader; validates like the posts loader, `null` for a missing slug
+- `lib/lenis.tsx` — `LenisProvider` client component; wraps app in `app/layout.tsx`; drives Lenis from `gsap.ticker` and registers ScrollTrigger so hero scrub and smooth scroll share one clock
 
 ## Design Tokens
 
@@ -92,8 +104,10 @@ All tokens are CSS variables defined in `app/globals.css` and exposed as Tailwin
 
 Vitest + Testing Library (jsdom). Tests live in `test/`. Run with `npm test`.
 
-- `test/posts/` — unit tests for schema, loader, filter, relativeTime
-- `test/feed/` — component smoke tests for card components and PostRow
+- `test/posts/` — schema, loader (incl. invalid-frontmatter throw via `test/fixtures/feed-*`), filter, relativeTime, and `content-assets.test.ts` (every content image path must resolve under `public/` — guards against referencing gitignored local media)
+- `test/projects/` — projectSchema + case-study loader (fixtures in `test/fixtures/projects-*`)
+- `test/feed/` — card smoke tests, FilterChips `aria-pressed` + onChange, and Feed filter integration
+- `test/hero/` — HeroHud (h1 wordmark, safe external links). `CityDescent` itself is canvas/GSAP and is **not** jsdom-testable — verify it in the browser.
 - `test/smoke.test.ts` — harness sanity check
 
 Mock for `server-only`: `test/__mocks__/server-only.ts` (no-op, re-aliased in `vitest.config.ts`).

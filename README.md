@@ -9,15 +9,15 @@ Live at [b3soft.vercel.app](https://b3soft.vercel.app).
 
 ## What it is
 
-**Wahnahbe** (ワナビー) is a single-column typed-feed site. The homepage shows a layered-parallax Neo-Tokyo hero followed by a reverse-chronological feed of build logs, project updates, videos, and posts. Project case studies live at `/p/[slug]`.
+**Wahnahbe** (ワナビー) is a single-column typed-feed site. The homepage opens on a scroll-driven canvas descent through Neo-Tokyo, then lands in a reverse-chronological feed of build logs, project updates, videos, and posts. Project case studies live at `/p/[slug]`.
 
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack) + **TypeScript**
 - **Tailwind v4** — CSS-variable design tokens, `@theme inline`
-- **Lenis** — smooth scroll
+- **Lenis + GSAP ScrollTrigger** — smooth scroll and the pinned hero scrub, driven from one shared ticker
 - **next-mdx-remote** + **gray-matter** — MDX content layer
-- **Zod** — frontmatter validation
+- **Zod** — frontmatter validation (feed posts *and* project case studies)
 - **Vitest** + **Testing Library** — unit + component tests
 
 ## Feed / post model
@@ -38,7 +38,7 @@ Project case studies live in `content/projects/*.mdx` and render at `/p/[slug]`.
 
 ## Hero
 
-`<CityHero>` uses three layered PNG plates (`public/megacity.png`, `public/skyline.png`, `public/undergroundtransit.png`) with pointer + scroll parallax. On reduced-motion or coarse-pointer devices it falls back to a single static plate or scroll-only drift. The parallax renderer is a swap boundary — it can be replaced with an R3F scene without touching the outer component.
+`<CityHero>` renders `<CityDescent>` — a GSAP ScrollTrigger-pinned canvas that scrubs through a committed WebP frame sequence (240 desktop frames at 1600×900, 150 portrait mobile frames) as you scroll, descending from above the clouds to The Rust. District title cards swap as you pass each layer of the city. The first frame is SSR-preloaded; the rest stream in a coarse-then-fill order so slow networks still paint. `prefers-reduced-motion` gets a static frame instead. `CityHero` is a swap boundary — the renderer can be replaced (e.g. with an R3F scene) without touching callers.
 
 ## Run locally
 
