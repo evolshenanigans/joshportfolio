@@ -1,113 +1,70 @@
-# joshportfolio
+# Wahnahbe — Joshua Gutierrez
 
-Personal portfolio for **Joshua Gutierrez** — data scientist / ML engineer.
+Personal creator hub for **Joshua Gutierrez** — data scientist / ML engineer.
 Live at [b3soft.vercel.app](https://b3soft.vercel.app).
 
-> _"Data scientist by training. Translator by trade. From English major to ML engineer — I build models that explain themselves, because someone has to."_
+> _"Fun, useful AI — built & explained in public."_
 
 ---
+
+## What it is
+
+**Wahnahbe** (ワナビー) is a single-column typed-feed site. The homepage opens on a scroll-driven canvas descent through Neo-Tokyo, then lands in a reverse-chronological feed of build logs, project updates, videos, and posts. Project case studies live at `/p/[slug]`.
 
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack) + **TypeScript**
-- **Tailwind v4** with CSS-variable design tokens
-- **React Three Fiber** + **drei** + **@react-three/postprocessing** — 3D scenes
-- **GSAP** + **ScrollTrigger** — scroll-driven animation and the horizontal "Arc" pin
-- **Lenis** — wheel-normalized smooth scroll, synced to GSAP's ticker
-- **Fraunces** + **Inter** via `next/font/google`
+- **Tailwind v4** — CSS-variable design tokens, `@theme inline`
+- **Lenis + GSAP ScrollTrigger** — smooth scroll and the pinned hero scrub, driven from one shared ticker
+- **next-mdx-remote** + **gray-matter** — MDX content layer
+- **Zod** — frontmatter validation (feed posts *and* project case studies)
+- **Vitest** + **Testing Library** — unit + component tests
 
-## Sections
+## Feed / post model
 
-| # | ID | What it is |
-|---|----|------------|
-| 00 | `#open` | Cold open — morphing 3D scene (chalk → keyboard → neural net) |
-| 01 | `#manifesto` | Split-word headline reveal |
-| 02 | `#arc` | Horizontal pinned timeline: Teacher → Engineer → Scientist |
-| 03 | `#work` | Selected projects with drag-to-orbit 3D scene per project |
-| 04 | `#toolbox` | Editorial skills list, grouped by category |
-| 05 | `#numbers` | Animated stat counters |
-| 06 | `#contact` | Email · GitHub · LinkedIn · Resume |
+All posts are MDX files in `content/feed/` with Zod-validated frontmatter. Five post types:
 
-All content lives in [`lib/data.ts`](./lib/data.ts) as the single source of truth.
+| Type | When to use |
+|------|-------------|
+| `build` | Project in progress |
+| `ship` | Project shipped |
+| `video` | YouTube video |
+| `post` | Instagram / image post |
+| `log` | Short text log entry |
+
+To add a post: create `content/feed/YYYY-MM-DD-slug.mdx` with the appropriate frontmatter (see `lib/posts/schema.ts`). The loader picks it up automatically, validates, and sorts newest-first.
+
+Project case studies live in `content/projects/*.mdx` and render at `/p/[slug]`.
+
+## Hero
+
+`<CityHero>` renders `<CityDescent>` — a GSAP ScrollTrigger-pinned canvas that scrubs through a committed WebP frame sequence (240 desktop frames at 1600×900, 150 portrait mobile frames) as you scroll, descending from above the clouds to The Rust. District title cards swap as you pass each layer of the city. The first frame is SSR-preloaded; the rest stream in a coarse-then-fill order so slow networks still paint. `prefers-reduced-motion` gets a static frame instead. `CityHero` is a swap boundary — the renderer can be replaced (e.g. with an R3F scene) without touching callers.
 
 ## Run locally
 
 ```bash
 npm install
 npm run dev     # http://localhost:3000
-npm run build   # production build (must pass with zero errors)
+npm run build   # production build (zero-error gate)
 npm run lint    # eslint
-```
-
-## Project structure
-
-```
-app/
-  layout.tsx          # root + LenisProvider + fonts + metadata
-  page.tsx            # all 7 sections in sequence
-  globals.css         # design tokens (--bg, --accent, --text, ...)
-  opengraph-image.tsx # edge-runtime OG image
-components/
-  ArcRail.tsx         # pinned horizontal timeline
-  HeadlineReveal.tsx  # GSAP word-split reveal
-  ScrollReveal.tsx    # fade-up on scroll
-  SectionNav.tsx      # floating side-dot nav
-  StatCounter.tsx     # count-up on view
-  three/
-    ColdOpen.tsx      # morphing hero scene
-    ProjectCanvas.tsx # per-project 3D preview (lazy-mounted)
-    projectScenes.tsx # scene definitions
-lib/
-  data.ts             # projects, timeline, stats, skills, contact
-  lenis.tsx           # Lenis + GSAP ticker integration
-  utils.ts
-public/
-  2026resume.pdf
-  cafepicremoved.png
+npm test        # vitest
 ```
 
 ## Design tokens
 
-All colors and type tokens are CSS variables defined in `app/globals.css` and
-exposed to Tailwind via `@theme inline`. New components should use the tokens,
-never hardcoded hex values.
+All colors are CSS variables in `app/globals.css`, exposed to Tailwind via `@theme inline`. Use tokens — never hardcode hex.
 
-| Token | Purpose |
-|-------|---------|
-| `--bg` / `--surface` | Page + card backgrounds |
-| `--accent` / `--accent-dim` | Cyan highlights, rules, glow |
-| `--text` / `--text-muted` | Primary + secondary text |
-| `--rule` | Subtle borders |
+| Token | Value | Role |
+|-------|-------|------|
+| `--bg` | `#05080a` | Page background |
+| `--accent` | `#19e6ff` | Cyan highlight |
+| `--accent-2` | `#ffb020` | Amber accent |
+| `--text` | `#eafcff` | Primary text |
+| `--text-muted` | `#6c8a90` | Secondary text |
+| `--line` | `rgba(25,230,255,0.20)` | Borders |
 
-## Performance notes
-
-- **Lenis smooth scroll** runs in lerp mode (`lerp: 0.15`) and is driven off
-  `gsap.ticker.add(...)` so ScrollTrigger `scrub` and `pin` stay perfectly
-  synced. Wheel deltas are normalized for cross-browser consistency.
-- **R3F canvases** are lazy-mounted via `IntersectionObserver` — each scene
-  only boots when it scrolls near the viewport.
-- **Reduced motion**: every GSAP and auto-play effect honors
-  `prefers-reduced-motion: reduce` with an instant-state fallback.
-- **Mobile**: `dpr` capped at `1.5`, postprocessing kept minimal.
-
-## Deploy
-
-Pushes to `main` auto-deploy via Vercel. For first-time setup:
-
-```bash
-# Option A: Vercel dashboard
-# https://vercel.com/new → import this repo → project name: b3soft
-
-# Option B: Vercel CLI
-npm i -g vercel
-vercel login
-vercel --prod
-```
-
-After deploying, update `metadataBase` in `app/layout.tsx` if the production
-URL changes.
+Fonts: **Inter** (sans) + **JetBrains Mono** (mono).
 
 ## License
 
-Personal portfolio. Content (copy, photo, resume) © Joshua Gutierrez.
-Code is MIT — fork freely if any of it is useful to you.
+Personal portfolio. Content (copy, resume) © Joshua Gutierrez. Code is MIT — fork freely.

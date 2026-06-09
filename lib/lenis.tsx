@@ -6,6 +6,12 @@ import ScrollTrigger from "gsap/ScrollTrigger"
 
 gsap.registerPlugin(ScrollTrigger)
 
+declare global {
+  interface Window {
+    lenis?: Lenis
+  }
+}
+
 export function LenisProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const lenis = new Lenis({
@@ -17,6 +23,7 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
       syncTouch: false,
       normalizeWheel: true,
     } as ConstructorParameters<typeof Lenis>[0])
+    window.lenis = lenis
 
     // Drive Lenis from GSAP's ticker so ScrollTrigger scrub stays in sync
     lenis.on("scroll", ScrollTrigger.update)
@@ -27,6 +34,7 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
     return () => {
       gsap.ticker.remove(tick)
       lenis.destroy()
+      window.lenis = undefined
     }
   }, [])
   return <>{children}</>
