@@ -9,7 +9,7 @@ export function HeroHud() {
         className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[440px] w-[720px] max-w-[94vw] -translate-x-1/2 -translate-y-1/2"
         style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(5,8,10,0.85), rgba(5,8,10,0.45) 50%, transparent 76%)", filter: "blur(12px)" }}
       />
-      <div className="font-mono">
+      <h1 className="font-mono">
         <span
           className="text-5xl font-extrabold tracking-[0.04em] text-text md:text-6xl"
           style={{ textShadow: "0 2px 14px rgba(0,0,0,0.95), 0 0 16px var(--accent), 0 0 44px var(--glow-cyan)" }}
@@ -22,7 +22,7 @@ export function HeroHud() {
         >
           {site.kana}
         </span>
-      </div>
+      </h1>
       <p
         className="mt-3 max-w-md text-sm text-text/90"
         style={{ textShadow: "0 1px 10px rgba(0,0,0,0.95)" }}

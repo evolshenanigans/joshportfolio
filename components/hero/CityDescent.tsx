@@ -192,7 +192,7 @@ export function CityDescent() {
 
   return (
     <section ref={root} className="relative h-screen min-h-[560px] w-full overflow-hidden bg-bg">
-      <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
+      <canvas ref={canvas} aria-hidden="true" className="absolute inset-0 h-full w-full" />
       <HeroOverlays />
       <div ref={hud} className="absolute inset-0 z-20">
         <HeroHud />
