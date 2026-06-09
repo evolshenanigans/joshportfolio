@@ -119,9 +119,16 @@ export function CityDescent() {
       wrap.style.bottom = `${Math.round(bottom)}px`
     }
 
-    for (let i = 0; i < set.count; i++) {
+    // Request frames in two passes — every 8th frame first for coarse coverage,
+    // then the fill — so on slow networks nearestLoaded() degrades to a sparse
+    // sequence instead of a blank canvas while late frames stream in.
+    const order: number[] = []
+    for (let i = 0; i < set.count; i += 8) order.push(i)
+    for (let i = 0; i < set.count; i++) if (i % 8 !== 0) order.push(i)
+    for (const i of order) {
       const img = new Image()
       img.decoding = "async"
+      if (i === 0) img.fetchPriority = "high" // pairs with the <link rel="preload"> below
       img.src = `${set.dir}/f-${pad(i + 1)}.webp`
       img.onload = () => {
         loaded[i] = true
@@ -192,6 +199,10 @@ export function CityDescent() {
 
   return (
     <section ref={root} className="relative h-screen min-h-[560px] w-full overflow-hidden bg-bg">
+      {/* React hoists these into <head>; media gates which set downloads, matching
+          the 768px breakpoint above — so the first frame paints before hydration. */}
+      <link rel="preload" as="image" href="/frames/desktop/f-001.webp" fetchPriority="high" media="(min-width: 769px)" />
+      <link rel="preload" as="image" href="/frames/mobile/f-001.webp" fetchPriority="high" media="(max-width: 768px)" />
       <canvas ref={canvas} aria-hidden="true" className="absolute inset-0 h-full w-full" />
       <HeroOverlays />
       <div ref={hud} className="absolute inset-0 z-20">
