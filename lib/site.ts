@@ -2,7 +2,7 @@ export const site = {
   name: "Wahnahbe",
   kana: "ワナビー",
   tagline: "Fun, useful AI — built & explained in public.",
-  building: "japanese-tutor",
+  building: "SQL Battle Royale",
   socials: {
     youtube: "https://youtube.com/@wahnahbe",
     instagram: "https://instagram.com/wahnahbe",

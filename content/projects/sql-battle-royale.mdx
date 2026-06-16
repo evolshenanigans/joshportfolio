@@ -1,0 +1,19 @@
+---
+title: SQL Battle Royale
+summary: An 8-player real-time competitive SQL game — and a story-driven campaign that teaches SQL along the way.
+status: building
+cover: /covers/sql-battle-royale.webp
+---
+## What it is
+Eight players, seven rounds, one shrinking lobby. Everyone gets the same SQL puzzle each round; your query runs against a freshly-seeded in-memory database, and the **slowest correct answer is eliminated** — last query standing wins. Empty seats fill with bots after eight seconds, so a match always starts, and registered players carry an ELO-style rating that only moves when you're up against real humans.
+
+It's grown a second mode: a single-player **campaign** where the data *is* the story — a seven-chapter hacker narrative ("Project Cascade") of dialogue, query puzzles, and boss "ICE" encounters, with a trace meter that punishes brute-forcing and hints that cost you.
+
+## How it's built
+A pnpm + TypeScript monorepo. **React + Vite** on the front, with a Monaco editor for real SQL syntax highlighting (lazy-loaded so it doesn't bloat first paint); **Fastify + Socket.IO** on the back; **Prisma + SQLite** for persistence; JWT auth for both guests and accounts.
+
+## The interesting part — running untrusted SQL safely, in real time
+Every submitted query is hostile input. Each round seeds a fresh `:memory:` SQLite database and runs the query in a **worker thread with a hard timeout**, so a runaway join or recursive CTE gets killed instead of freezing the match for everyone else. The workers are pooled with backpressure, so a burst of submissions can't exhaust memory. Validation is defense-in-depth — the main thread and the worker each independently enforce SELECT-only, single-statement queries, and the worker is the real trust boundary. Every submission is tagged with its round, so a late answer can't leak into the next one, and a per-user rate limiter survives socket reconnects so you can't refill your quota by bouncing the connection.
+
+## Status
+The competitive mode is complete and polished, and all seven campaign chapters are playable. The current build is redesigning that campaign into a new beat-driven format with real learning features — mastery tracking, spaced review, cold-solve checks — and tougher boss fights; Chapter 1 is converted and tested, with the rest rolling over one chapter at a time. Closed alpha, not public yet.
