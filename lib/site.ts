@@ -6,7 +6,7 @@ export const site = {
   socials: {
     youtube: "https://youtube.com/@wahnahbe",
     instagram: "https://instagram.com/wahnahbe",
-    github: "https://github.com/evolshenanigans",
+    github: "https://github.com/wahnahbe",
     email: "joshgusgutierrez@gmail.com",
   },
   // Socials that aren't live yet — rendered greyed out with a SOON tag instead
