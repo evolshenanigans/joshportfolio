@@ -1,0 +1,27 @@
+---
+title: Wahnahbe System
+summary: A Solo Leveling-style life-RPG dashboard fed live by my second-brain Obsidian vault — no database, no cloud, files are the API.
+status: shipped
+repo: https://github.com/wahnahbe/wahnahbe-system
+cover: /covers/wahnahbe-system.webp
+---
+## What it is
+A dashboard that holds my whole life and runs permanently on my machine: daily/side/main quests that bank XP, click-to-set HP/MP gauges, a weigh-in sparkline, an agenda strip synced from Google Calendar, my Japanese study streak — and an **8-stat mastery octagon built from real data**. My AI tutoring sessions grade actual mastery scores (1–5) into markdown files in my Obsidian vault; the dashboard parses them live. The radar isn't self-reported vibes — it's my graded report card, rendered as a game HUD.
+
+Cross an XP threshold and a full-screen **LEVEL UP** overlay fires. XP comes from one unified pool: cumulative report-card XP from tutoring plus an append-only ledger the dashboard writes for quests and training.
+
+![Level up](/covers/wahnahbe-system-ascension.webp)
+
+## The interesting part — files are the API
+There's no database and no auth. Everything is plain files in the vault: five markdown sources the server parses read-only (report card, gradebook, concept mastery, activity log, Japanese progress) and five schema-validated JSON files the dashboard owns (quests, health, agenda, XP ledger, settings). A **chokidar watcher pushes every file change to the browser over SSE**, so finishing a tutoring session — or hand-editing a JSON file in any editor — updates the screen within about a second.
+
+That design means any AI coding session can update my dashboard by just editing a file, with the contracts documented in the repo's `CLAUDE.md`. The write path is defensive: zod validation, atomic temp-and-rename writes, per-source degradation (a malformed vault file dims one panel instead of crashing the endpoint), and XP awarded *before* quest completion persists — so a failed write can never eat a completed quest's XP.
+
+## Built spec-first, reviewed task-by-task
+The whole build ran spec → 20-task TDD plan → a fresh implementation agent per task, each gated by an independent review before the next task started. The review loop caught real bugs before they shipped: a level-math crash on negative XP, a write-ordering flaw that could strand completed quests with zero XP, and the server binding all interfaces instead of loopback. 75 tests: parser units against real-format fixtures, API integration on a sandboxed vault, and a Playwright E2E that proves the live SSE loop by editing a vault file on disk mid-test.
+
+## Deployment
+A Windows Task Scheduler task launches it hidden at logon. The launcher is synchronous so the task instance lives and dies with the node process, and a 5-minute watchdog trigger restarts it unattended — measured crash recovery: 53 seconds. Localhost-only by design.
+
+## Status
+Live daily. Next arcs: rendering the concept-mastery bands, a job-search panel, and per-stat XP mileage.
